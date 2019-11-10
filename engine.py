@@ -2,16 +2,25 @@ import tcod as libtcod
 from entity import Entity
 from input_handlers import handle_keys
 from render_functions import render_all, clear_all
+from map_objects.game_map import GameMap
 
 
 def main():
     # define variables for the screen size
     screen_width = 80
     screen_height = 50
+    # define the size of the map
+    map_width = 80
+    map_height = 45
+
+    # dictionary to hold the colors being used for drawing blocked/non-blocked tiles
+    colors = {
+        'dark_wall': libtcod.Color(0, 0, 100),  # serve as walls outside the player's field of view
+        'dark_ground': libtcod.Color(50, 50, 150)  # serve as ground outside the player's field of view
+    }
 
     # initialize the player and an npc
     # place the player right in the middle of the screen
-
     player = Entity(int(screen_width / 2), int(screen_height / 2), '@', libtcod.white)
     npc = Entity(int(screen_width / 2 - 5), int(screen_height / 2), '@', libtcod.yellow)
     # store the npc and player in a list, which will eventually hold all entities in the map
@@ -25,6 +34,8 @@ def main():
     libtcod.console_init_root(screen_width, screen_height, 'libtcod tutorial revised', False)
 
     con = libtcod.console_new(screen_width, screen_height)
+    # initialize the game map
+    game_map = GameMap(map_width, map_height)
 
     # variables to hold keyboard and mouse input
     key = libtcod.Key()
@@ -36,7 +47,7 @@ def main():
         libtcod.sys_check_for_event(libtcod.EVENT_KEY_PRESS, key, mouse)
 
         # draw the entities and blit the changes to the screen
-        render_all(con, entities, screen_width, screen_height)
+        render_all(con, entities, game_map, screen_width, screen_height, colors)
 
         # present everything on the screen
         libtcod.console_flush()
@@ -54,7 +65,8 @@ def main():
 
         if move:
             dx, dy = move
-            player.move(dx, dy)
+            if not game_map.is_blocked(player.x + dx, player.y + dy):
+                player.move(dx, dy)
 
         # checks if the key pressed was the Esc key - if it was, then exit the loop
         if exit:
