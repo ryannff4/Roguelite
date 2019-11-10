@@ -1,5 +1,7 @@
 import tcod as libtcod
+from entity import Entity
 from input_handlers import handle_keys
+from render_functions import render_all, clear_all
 
 
 def main():
@@ -7,9 +9,13 @@ def main():
     screen_width = 80
     screen_height = 50
 
-    # place the player right in the middle of the scren
-    player_x = int(screen_width / 2)
-    player_y = int(screen_height / 2)
+    # initialize the player and an npc
+    # place the player right in the middle of the screen
+
+    player = Entity(int(screen_width / 2), int(screen_height / 2), '@', libtcod.white)
+    npc = Entity(int(screen_width / 2 - 5), int(screen_height / 2), '@', libtcod.yellow)
+    # store the npc and player in a list, which will eventually hold all entities in the map
+    entities = [npc, player]
 
     # tell libtcod which font to use; dictate the file to read from, and the other two arguments tell libtcod which
     # type of file is being read
@@ -29,19 +35,14 @@ def main():
         # captures user input - will update the key and mouse variables with what the user inputs
         libtcod.sys_check_for_event(libtcod.EVENT_KEY_PRESS, key, mouse)
 
-        # choose the con variable as the console; set color for our @ symbol;
-        libtcod.console_set_default_foreground(con, libtcod.white)
-        libtcod.console_put_char(con, player_x, player_y, '@', libtcod.BKGND_NONE)
-        libtcod.console_blit(con, 0, 0, screen_width, screen_height, 0, 0, 0)
-
-
-
-        # con defines the console to print to; next two arguments are the x and y coordinates
-        # background is sent to 'none'
-        libtcod.console_put_char(con, player_x, player_y, ' ', libtcod.BKGND_NONE)
+        # draw the entities and blit the changes to the screen
+        render_all(con, entities, screen_width, screen_height)
 
         # present everything on the screen
         libtcod.console_flush()
+
+        # clear entities after drawing to screen - this makes it so that when entities move, they do not leave a trail behind
+        clear_all(con, entities)
 
         # gives a way to gracefully exit proram by hitting the ESC key
         # gets any keyboard input to the program and stores in the key variable
@@ -53,8 +54,7 @@ def main():
 
         if move:
             dx, dy = move
-            player_x += dx
-            player_y += dy
+            player.move(dx, dy)
 
         # checks if the key pressed was the Esc key - if it was, then exit the loop
         if exit:
