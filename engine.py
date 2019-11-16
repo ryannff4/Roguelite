@@ -13,6 +13,11 @@ def main():
     map_width = 80
     map_height = 45
 
+    # set the max and min size of the rooms, along with the max number of rooms one floor can have
+    room_max_size = 10
+    room_min_size = 6
+    max_rooms = 30
+
     # dictionary to hold the colors being used for drawing blocked/non-blocked tiles
     colors = {
         'dark_wall': libtcod.Color(0, 0, 100),  # serve as walls outside the player's field of view
@@ -36,7 +41,7 @@ def main():
     con = libtcod.console_new(screen_width, screen_height)
     # initialize the game map
     game_map = GameMap(map_width, map_height)
-    game_map.make_map()
+    game_map.make_map(max_rooms, room_min_size, room_max_size, map_width, map_height, player)
 
     # variables to hold keyboard and mouse input
     key = libtcod.Key()
