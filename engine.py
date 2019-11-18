@@ -3,6 +3,7 @@ from entity import Entity
 from input_handlers import handle_keys
 from render_functions import render_all, clear_all
 from map_objects.game_map import GameMap
+from fov_functions import initialize_fov, recompute_fov
 
 
 def main():
@@ -18,10 +19,16 @@ def main():
     room_min_size = 6
     max_rooms = 30
 
+    fov_algorithm = 0  # default algorithm that libtcod uses
+    fov_light_walls = True  # dictates whether or not to "light up" the walls seen
+    fov_radius = 10
+
     # dictionary to hold the colors being used for drawing blocked/non-blocked tiles
     colors = {
         'dark_wall': libtcod.Color(0, 0, 100),  # serve as walls outside the player's field of view
-        'dark_ground': libtcod.Color(50, 50, 150)  # serve as ground outside the player's field of view
+        'dark_ground': libtcod.Color(50, 50, 150),  # serve as ground outside the player's field of view
+        'light_wall': libtcod.Color(130, 110, 50),
+        'light_ground': libtcod.Color(200, 180., 50)
     }
 
     # initialize the player and an npc
@@ -43,6 +50,11 @@ def main():
     game_map = GameMap(map_width, map_height)
     game_map.make_map(max_rooms, room_min_size, room_max_size, map_width, map_height, player)
 
+    # dictates if need to recompute the field of view
+    fov_recompute = True
+
+    fov_map = initialize_fov(game_map)
+
     # variables to hold keyboard and mouse input
     key = libtcod.Key()
     mouse = libtcod.Mouse()
@@ -51,6 +63,9 @@ def main():
     while not libtcod.console_is_window_closed():
         # captures user input - will update the key and mouse variables with what the user inputs
         libtcod.sys_check_for_event(libtcod.EVENT_KEY_PRESS, key, mouse)
+
+        if fov_recompute:
+            recompute_fov(fov_map, player.x, player.y, fov_radius, fov_light_walls, fov_algorithm)
 
         # draw the entities and blit the changes to the screen
         render_all(con, entities, game_map, screen_width, screen_height, colors)
@@ -73,6 +88,7 @@ def main():
             dx, dy = move
             if not game_map.is_blocked(player.x + dx, player.y + dy):
                 player.move(dx, dy)
+                fov_recompute = True
 
         # checks if the key pressed was the Esc key - if it was, then exit the loop
         if exit:
