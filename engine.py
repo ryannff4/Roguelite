@@ -28,7 +28,7 @@ def main():
         'dark_wall': libtcod.Color(0, 0, 100),  # serve as walls outside the player's field of view
         'dark_ground': libtcod.Color(50, 50, 150),  # serve as ground outside the player's field of view
         'light_wall': libtcod.Color(130, 110, 50),
-        'light_ground': libtcod.Color(200, 180., 50)
+        'light_ground': libtcod.Color(200, 180, 50)
     }
 
     # initialize the player and an npc
@@ -68,7 +68,9 @@ def main():
             recompute_fov(fov_map, player.x, player.y, fov_radius, fov_light_walls, fov_algorithm)
 
         # draw the entities and blit the changes to the screen
-        render_all(con, entities, game_map, screen_width, screen_height, colors)
+        render_all(con, entities, game_map, fov_map, fov_recompute, screen_width, screen_height, colors)
+
+        fov_recompute = False
 
         # present everything on the screen
         libtcod.console_flush()
