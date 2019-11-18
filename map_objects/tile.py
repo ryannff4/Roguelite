@@ -12,3 +12,5 @@ class Tile:
             block_sight = blocked;
 
         self.block_sight = block_sight
+
+        self.explored = False  # variable to mark a tile as explored or not; this way the map can "remember" areas that have already been explored
