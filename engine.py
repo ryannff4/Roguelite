@@ -1,9 +1,10 @@
 import tcod as libtcod
-from entity import Entity
+from entity import Entity, get_blocking_entities_at_location
 from input_handlers import handle_keys
 from render_functions import render_all, clear_all
 from map_objects.game_map import GameMap
 from fov_functions import initialize_fov, recompute_fov
+from game_states import GameStates
 
 
 def main():
@@ -35,7 +36,7 @@ def main():
 
     # initialize the player and an npc
     # place the player right in the middle of the screen
-    player = Entity(0, 0, '@', libtcod.white)
+    player = Entity(0, 0, '@', libtcod.white, 'Player', blocks=True)
     # store the npc and player in a list, which will eventually hold all entities in the map
     entities = [player]
 
@@ -59,6 +60,8 @@ def main():
     # variables to hold keyboard and mouse input
     key = libtcod.Key()
     mouse = libtcod.Mouse()
+
+    game_state = GameStates.PLAYERS_TURN
 
     # game loop
     while not libtcod.console_is_window_closed():
@@ -87,11 +90,26 @@ def main():
         exit = action.get('exit')
         fullscreen = action.get('fullscreen')
 
-        if move:
+        # move the player only on the players turn
+        if move and game_state == GameStates.PLAYERS_TURN:
             dx, dy = move
-            if not game_map.is_blocked(player.x + dx, player.y + dy):
-                player.move(dx, dy)
-                fov_recompute = True
+
+            # get destination of player's movement
+            destination_x = player.x + dx
+            destination_y = player.y + dy
+
+            # check if there is something at the destination that would block the player - if not, move the player there
+            if not game_map.is_blocked(destination_x, destination_y):
+                target = get_blocking_entities_at_location(entities, destination_x, destination_y)
+
+                if target:
+                    print('You kick the ' + target.name + ' in the shins, much to its annoyance!')
+                else:
+                    player.move(dx, dy)
+                    fov_recompute = True
+
+                # change to enemy's turn after player's move
+                game_state = GameStates.ENEMY_TURN
 
         # checks if the key pressed was the Esc key - if it was, then exit the loop
         if exit:
@@ -99,6 +117,13 @@ def main():
 
         if fullscreen:
             libtcod.console_set_fullscreen((not libtcod.console_is_fullscreen()))
+
+        if game_state == GameStates.ENEMY_TURN:
+            for entity in entities:
+                if entity != player:
+                    print('The ' + entity.name + ' ponders the meaning of its existence.')
+
+            game_state = GameStates.PLAYERS_TURN
 
 
 # run the main function when we explicitly run the script
