@@ -23,6 +23,8 @@ def main():
     fov_light_walls = True  # dictates whether or not to "light up" the walls seen
     fov_radius = 10
 
+    max_monsters_per_room = 3
+
     # dictionary to hold the colors being used for drawing blocked/non-blocked tiles
     colors = {
         'dark_wall': libtcod.Color(0, 0, 100),  # serve as walls outside the player's field of view
@@ -33,10 +35,9 @@ def main():
 
     # initialize the player and an npc
     # place the player right in the middle of the screen
-    player = Entity(int(screen_width / 2), int(screen_height / 2), '@', libtcod.white)
-    npc = Entity(int(screen_width / 2 - 5), int(screen_height / 2), '@', libtcod.yellow)
+    player = Entity(0, 0, '@', libtcod.white)
     # store the npc and player in a list, which will eventually hold all entities in the map
-    entities = [npc, player]
+    entities = [player]
 
     # tell libtcod which font to use; dictate the file to read from, and the other two arguments tell libtcod which
     # type of file is being read
@@ -48,7 +49,7 @@ def main():
     con = libtcod.console_new(screen_width, screen_height)
     # initialize the game map
     game_map = GameMap(map_width, map_height)
-    game_map.make_map(max_rooms, room_min_size, room_max_size, map_width, map_height, player)
+    game_map.make_map(max_rooms, room_min_size, room_max_size, map_width, map_height, player, entities, max_monsters_per_room)
 
     # dictates if need to recompute the field of view
     fov_recompute = True
