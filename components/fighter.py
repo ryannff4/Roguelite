@@ -6,13 +6,25 @@ class Fighter:
         self.power = power
 
     def take_damage(self, amount):
+        results = []
+
         self.hp -= amount
 
+        if self.hp <= 0:
+            results.append({'dead': self.owner})
+
+        return results
+
     def attack(self, target):
+        results = []
+
         damage = self.power - target.fighter.defense
 
         if damage > 0:
-            target.fighter.take_damage(damage)
-            print('{0} attacks {1} for {2} hit points.'.format(self.owner.name.capitalize(), target.name, str(damage)))
+            results.append({'message': '{0} attacks {1} for {2} hit points.'.format(self.owner.name.capitalize(), target.name, str(damage))})
+            # extend is similar to append, but keeps the dict flat so as to not get a dict inside a dict
+            results.extend(target.fighter.take_damage(damage))
         else:
-            print('{0} attacks {1} but does no damage.'.format(self.owner.name.capitalize(), target.name))
+            results.append({'message': '{0} attacks {1} but does no damage.'.format(self.owner.name.capitalize(), target.name)})
+
+        return results
