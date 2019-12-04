@@ -1,7 +1,7 @@
 import tcod as libtcod
 from entity import Entity, get_blocking_entities_at_location
 from input_handlers import handle_keys
-from render_functions import render_all, clear_all
+from render_functions import render_all, clear_all, RenderOrder
 from map_objects.game_map import GameMap
 from fov_functions import initialize_fov, recompute_fov
 from game_states import GameStates
@@ -40,7 +40,7 @@ def main():
 
     # initialize the player and an npc
     # place the player right in the middle of the screen
-    player = Entity(0, 0, '@', libtcod.white, 'Player', blocks=True, fighter=fighter_component)
+    player = Entity(0, 0, '@', libtcod.white, 'Player', blocks=True, render_order=RenderOrder.ACTOR, fighter=fighter_component)
     # store the npc and player in a list, which will eventually hold all entities in the map
     entities = [player]
 

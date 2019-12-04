@@ -1,8 +1,15 @@
 import tcod as libtcod
 
+from enum import Enum
 '''
 hold functions for drawing and clearing from the screen
 '''
+
+
+class RenderOrder(Enum):
+    CORPSE = 1
+    ITEM = 2
+    ACTOR = 3
 
 
 def render_all(con, entities, player, game_map, fov_map, fov_recompute, screen_width, screen_height, colors):
@@ -31,8 +38,11 @@ def render_all(con, entities, player, game_map, fov_map, fov_recompute, screen_w
                     # if does not block sight, draw as a floor
                     else:
                         libtcod.console_set_char_background(con, x, y, colors.get('dark_ground'), libtcod.BKGND_SET)
+
+    entities_in_render_order = sorted(entities, key=lambda x: x.render_order.value)
+
     # draw all entities in the list
-    for entity in entities:
+    for entity in entities_in_render_order:
         draw_entity(con, entity, fov_map)
 
     libtcod.console_set_default_foreground(con, libtcod.white)
