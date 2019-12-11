@@ -13,9 +13,13 @@ def main():
     # define variables for the screen size
     screen_width = 80
     screen_height = 50
+
+    bar_width = 20
+    panel_height = 7
+    panel_y = screen_height - panel_height
     # define the size of the map
     map_width = 80
-    map_height = 45
+    map_height = 43
 
     # set the max and min size of the rooms, along with the max number of rooms one floor can have
     room_max_size = 10
@@ -52,6 +56,10 @@ def main():
     libtcod.console_init_root(screen_width, screen_height, 'libtcod tutorial revised', False)
 
     con = libtcod.console_new(screen_width, screen_height)
+
+    # create a new console to hold the HP bar and message log
+    panel = libtcod.console_new(screen_width, panel_height)
+
     # initialize the game map
     game_map = GameMap(map_width, map_height)
     game_map.make_map(max_rooms, room_min_size, room_max_size, map_width, map_height, player, entities, max_monsters_per_room)
@@ -76,7 +84,7 @@ def main():
             recompute_fov(fov_map, player.x, player.y, fov_radius, fov_light_walls, fov_algorithm)
 
         # draw the entities and blit the changes to the screen
-        render_all(con, entities, player, game_map, fov_map, fov_recompute, screen_width, screen_height, colors)
+        render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, screen_width, screen_height, bar_width, panel_height, panel_y, colors)
 
         fov_recompute = False
 
