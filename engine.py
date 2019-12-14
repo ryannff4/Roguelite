@@ -1,4 +1,6 @@
 import tcod as libtcod
+
+from components.inventory import Inventory
 from entity import Entity, get_blocking_entities_at_location
 from game_messages import MessageLog
 from input_handlers import handle_keys
@@ -48,10 +50,10 @@ def main():
     }
 
     fighter_component = Fighter(hp=30, defense=2, power=5)
-
+    inventory_component = Inventory(26)
     # initialize the player and an npc
     # place the player right in the middle of the screen
-    player = Entity(0, 0, '@', libtcod.white, 'Player', blocks=True, render_order=RenderOrder.ACTOR, fighter=fighter_component)
+    player = Entity(0, 0, '@', libtcod.white, 'Player', blocks=True, render_order=RenderOrder.ACTOR, fighter=fighter_component, inventory=inventory_component)
     # store the npc and player in a list, which will eventually hold all entities in the map
     entities = [player]
 
