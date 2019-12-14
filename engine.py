@@ -149,8 +149,8 @@ def main():
                     player_turn_results.extend(pickup_results)
 
                     break # makes it so the player only picks up one item at a time
-                else:
-                    message_log.add_message(Message('There is nothing here to pick up.', libtcod.yellow))
+            else:
+                message_log.add_message(Message('There is nothing here to pick up.', libtcod.yellow))
 
         # checks if the key pressed was the Esc key - if it was, then exit the loop
         if exit:
