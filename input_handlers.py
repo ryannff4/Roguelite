@@ -1,9 +1,37 @@
 import tcod as libtcod
+from game_states import GameStates
+
+
+def handle_keys(key, game_state):
+    if game_state == GameStates.PLAYERS_TURN:
+        return handle_player_turn_keys(key)
+    elif game_state == GameStates.PLAYER_DEAD:
+        return handle_player_dead_keys(key)
+    elif game_state == GameStates.SHOW_INVENTORY:
+        return handle_inventory_keys(key)
+
+    return {}
+
+
+def handle_inventory_keys(key):
+    index = key.c - ord('a')    # convert the key pressed to an index, where 'a' represents 0, 'b' represents 1, etc
+
+    if index >= 0:
+        return {'inventory_index': index}
+
+    if key.vk == libtcod.KEY_ENTER and key.lalt:
+        # alt+enter: toggle full screen
+        return {'fullscreen': True}
+    elif key.vk == libtcod.KEY_ESCAPE:
+        # exit the menu
+        return {'exit': True}
+
+    return {}
 
 
 # param: key; user input by key
 # return: handle different possibilities of user actions by returning a dictionary, which the engine will read and decide what to do
-def handle_keys(key):
+def handle_player_turn_keys(key):
     key_char = chr(key.c)
 
     # movement keys
@@ -13,7 +41,7 @@ def handle_keys(key):
         return {'move': (0, 1)}
     elif key.vk == libtcod.KEY_LEFT or key_char == 'h':
         return {'move': (-1, 0)}
-    elif key.vk == libtcod.KEY_RIGHT or key_char == 'i':
+    elif key.vk == libtcod.KEY_RIGHT:
         return {'move': (1, 0)}
     elif key_char == 'y':
         return {'move': (-1, -1)}
@@ -38,4 +66,20 @@ def handle_keys(key):
         return {'exit': True}
 
     # no key was pressed, return an empty dictionary
+    return {}
+
+
+def handle_player_dead_keys(key):
+    key_char = chr(key.c)
+
+    if key_char == 'i':
+        return {'show_inventory': True}
+
+    if key.vk == libtcod.KEY_ENTER and key.lalt:
+        # alt+enter: toggle full screen
+        return {'fullscreen': True}
+    elif key.vk == libtcod.KEY_ESCAPE:
+        # exit the menu
+        return {'exit': True}
+
     return {}

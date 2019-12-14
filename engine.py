@@ -95,8 +95,8 @@ def main():
         if fov_recompute:
             recompute_fov(fov_map, player.x, player.y, fov_radius, fov_light_walls, fov_algorithm)
 
-        # draw the entities and blit the changes to the screen
-        render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, message_log, screen_width, screen_height, bar_width, panel_height, panel_y, mouse, colors)
+        # draw the entities and blit the changes to the screen - only render the item inventory when the game state is in the inventory state
+        render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, message_log, screen_width, screen_height, bar_width, panel_height, panel_y, mouse, colors, game_state)
 
         fov_recompute = False
 
@@ -108,11 +108,12 @@ def main():
 
         # gives a way to gracefully exit proram by hitting the ESC key
         # gets any keyboard input to the program and stores in the key variable
-        action = handle_keys(key)
+        action = handle_keys(key, game_state)
 
         move = action.get('move')
         pickup = action.get('pickup')
         show_inventory = action.get('show_inventory')
+        inventory_index = action.get('inventory_index')
         exit = action.get('exit')
         fullscreen = action.get('fullscreen')
 
@@ -157,6 +158,12 @@ def main():
         if show_inventory:
             previous_game_state = game_state
             game_state = GameStates.SHOW_INVENTORY
+
+        # take the index selected, use the item selected
+        if inventory_index is not None and previous_game_state != GameStates.PLAYER_DEAD and inventory_index < len(player.inventory.items):
+            item = player.inventory.items[inventory_index]
+            print(item)
+
 
         # checks if the key pressed was the Esc key - if it was, then exit the loop
         if exit:
