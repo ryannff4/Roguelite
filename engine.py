@@ -37,6 +37,7 @@ def main():
     fov_radius = 10
 
     max_monsters_per_room = 3
+    max_items_per_room = 2
 
     # dictionary to hold the colors being used for drawing blocked/non-blocked tiles
     colors = {
@@ -68,7 +69,7 @@ def main():
 
     # initialize the game map
     game_map = GameMap(map_width, map_height)
-    game_map.make_map(max_rooms, room_min_size, room_max_size, map_width, map_height, player, entities, max_monsters_per_room)
+    game_map.make_map(max_rooms, room_min_size, room_max_size, map_width, map_height, player, entities, max_monsters_per_room, max_items_per_room)
 
     # dictates if need to recompute the field of view
     fov_recompute = True
