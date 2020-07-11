@@ -4,7 +4,7 @@ from game_messages import Message
 
 
 def heal(*args, **kwargs):
-    entity = args[0]
+    entity = args[0]    # take the entity using the item as the first argument
     amount = kwargs.get('amount')
 
     results = []
