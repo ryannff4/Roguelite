@@ -1,7 +1,8 @@
 import tcod as libtcod
 
 from components.item import Item
-from item_functions import heal, cast_lightning
+from game_messages import Message
+from item_functions import heal, cast_lightning, cast_fireball
 from map_objects.tile import Tile
 from map_objects.rectangle import Rect
 from random import randint
@@ -130,6 +131,11 @@ class GameMap:
                 if item_chance < 70:
                     item_component = Item(use_function=heal, amount=4)
                     item = Entity(x, y, '!', libtcod.violet, 'Healing Potion', render_order=RenderOrder.ITEM, item=item_component)
+                elif item_chance < 85:
+                    item_component = Item(use_function=cast_fireball, targeting=True,
+                                          targeting_message=Message('Left-click a target tile for the fireball, or right-click ot cancel.', libtcod.light_cyan),
+                                          damage=12, radius=3)
+                    item = Entity(x, y, '#', libtcod.red, 'Fireball Scroll', render_order=RenderOrder.ITEM, item=item_component)
                 else:
                     item_component = Item(use_function=cast_lightning, damage=20, maximum_range=5)
                     item = Entity(x, y, '#', libtcod.yellow, 'Lightning Scroll', render_order=RenderOrder.ITEM, item=item_component)
