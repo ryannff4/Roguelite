@@ -135,7 +135,6 @@ class GameMap:
                     item = Entity(x, y, '#', libtcod.yellow, 'Lightning Scroll', render_order=RenderOrder.ITEM, item=item_component)
                 entities.append(item)
 
-
     def is_blocked(self, x, y):
         if self.tiles[x][y].blocked:
             return True
