@@ -10,44 +10,11 @@ from fov_functions import initialize_fov, recompute_fov
 from game_states import GameStates
 from components.fighter import Fighter
 from death_functions import kill_monster, kill_player
+from loader_functions.initialize_new_game import get_constants
 
 
 def main():
-    # define variables for the screen size
-    screen_width = 80
-    screen_height = 50
-
-    bar_width = 20
-    panel_height = 7
-    panel_y = screen_height - panel_height
-
-    message_x = bar_width + 2
-    message_width = screen_width - bar_width - 2
-    message_height = panel_height - 1
-
-    # define the size of the map
-    map_width = 80
-    map_height = 43
-
-    # set the max and min size of the rooms, along with the max number of rooms one floor can have
-    room_max_size = 10
-    room_min_size = 6
-    max_rooms = 30
-
-    fov_algorithm = 0  # default algorithm that libtcod uses
-    fov_light_walls = True  # dictates whether or not to "light up" the walls seen
-    fov_radius = 10
-
-    max_monsters_per_room = 3
-    max_items_per_room = 2
-
-    # dictionary to hold the colors being used for drawing blocked/non-blocked tiles
-    colors = {
-        'dark_wall': libtcod.Color(0, 0, 100),  # serve as walls outside the player's field of view
-        'dark_ground': libtcod.Color(50, 50, 150),  # serve as ground outside the player's field of view
-        'light_wall': libtcod.Color(130, 110, 50),
-        'light_ground': libtcod.Color(200, 180, 50)
-    }
+    constants = get_constants()
 
     fighter_component = Fighter(hp=30, defense=2, power=5)
     inventory_component = Inventory(26)
@@ -62,23 +29,25 @@ def main():
     libtcod.console_set_custom_font('arial10x10.png', libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_TCOD)
 
     # create the screen with specified width and height; title; boolean value to say full screen or not
-    libtcod.console_init_root(screen_width, screen_height, 'libtcod tutorial revised', False)
+    libtcod.console_init_root(constants['screen_width'], constants['screen_height'], 'libtcod tutorial revised', False)
 
-    con = libtcod.console_new(screen_width, screen_height)
+    con = libtcod.console_new(constants['screen_width'], constants['screen_height'])
 
     # create a new console to hold the HP bar and message log
-    panel = libtcod.console_new(screen_width, panel_height)
+    panel = libtcod.console_new(constants['screen_width'], constants['panel_height'])
 
     # initialize the game map
-    game_map = GameMap(map_width, map_height)
-    game_map.make_map(max_rooms, room_min_size, room_max_size, map_width, map_height, player, entities, max_monsters_per_room, max_items_per_room)
+    game_map = GameMap(constants['map_width'], constants['map_height'])
+    game_map.make_map(constants['max_rooms'], constants['room_min_size'], constants['room_max_size'],
+                      constants['map_width'], constants['map_height'], constants['player'],
+                      constants['entities'], constants['max_monsters_per_room'], constants['max_items_per_room'])
 
     # dictates if need to recompute the field of view
     fov_recompute = True
 
     fov_map = initialize_fov(game_map)
 
-    message_log = MessageLog(message_x, message_width, message_height)
+    message_log = MessageLog(constants['message_x'], constants['message_width'], constants['message_height'])
 
     # variables to hold keyboard and mouse input
     key = libtcod.Key()
@@ -95,10 +64,12 @@ def main():
         libtcod.sys_check_for_event(libtcod.EVENT_KEY_PRESS | libtcod.EVENT_MOUSE, key, mouse)
 
         if fov_recompute:
-            recompute_fov(fov_map, player.x, player.y, fov_radius, fov_light_walls, fov_algorithm)
+            recompute_fov(fov_map, player.x, player.y, constants['fov_radius'], constants['fov_light_walls'], constants['fov_algorithm'])
 
         # draw the entities and blit the changes to the screen - only render the item inventory when the game state is in the inventory state
-        render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, message_log, screen_width, screen_height, bar_width, panel_height, panel_y, mouse, colors, game_state)
+        render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, message_log,
+                   constants['screen_width'], constants['screen_height'], constants['bar_width'],
+                   constants['panel_height'], constants['panel_y'], mouse, constants['colors'], game_state)
 
         fov_recompute = False
 
