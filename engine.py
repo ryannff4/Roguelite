@@ -6,7 +6,9 @@ from fov_functions import initialize_fov, recompute_fov
 from game_messages import Message
 from game_states import GameStates
 from input_handlers import handle_keys, handle_mouse
+from loader_functions.data_loaders import save_game, load_game
 from loader_functions.initialize_new_game import get_constants, get_game_variables
+from menus import main_menu
 from render_functions import render_all, clear_all
 
 
@@ -25,7 +27,58 @@ def main():
     # create a new console to hold the HP bar and message log
     panel = libtcod.console_new(constants['screen_width'], constants['panel_height'])
 
-    player, entities, game_map, message_log, game_state = get_game_variables(constants)
+    player = None
+    entities = []
+    game_map = None
+    message_log = None
+    game_state = None
+
+    show_main_menu = True
+    show_load_error_message = False
+
+    main_menu_background_image = libtcod.image_load('menu_background.png')
+
+    key = libtcod.Key()
+    mouse = libtcod.Mouse()
+
+    while not libtcod.console_is_window_closed():
+        libtcod.sys_check_for_event(libtcod.EVENT_KEY_PRESS | libtcod.EVENT_MOUSE, key, mouse)
+
+        if show_main_menu:
+            main_menu(con, main_menu_background_image, constants['screen_width'], constants['screen_height'])
+
+            if show_load_error_message:
+                message_box(con, 'No save game to load', 50, constants['screen_width'], constants['screen_height'])
+
+            libtcod.console_flush()
+            action = handle_main_menu(key)
+
+            new_game = action.get('new_game')
+            load_saved_game = action.get('load_game')
+            exit_game = action.get('exit')
+
+            if show_load_error_message and (new_game or load_saved_game or exit_game):
+                show_load_error_message = False
+            elif new_game:
+                player, entities, game_map, message_log, game_state = get_game_variables(constants)
+                game_state = GameStates.PLAYERS_TURN
+
+                show_main_menu = False
+            elif load_saved_game:
+                try:
+                    player, entities, game_map, message_log, game_state = load_game()
+                    show_main_menu = False
+                except FileNotFoundError:
+                    show_load_error_message = True
+            elif exit_game:
+                break
+
+        else:
+            libtcod.console_clear(con)
+            play_game(player, entities, game_map, message_log, game_state, con, panel, constants)
+
+            show_main_menu = True
+
 
 
 def play_game(player, entities, game_map, message_log, game_state, con, panel, constants):
@@ -36,6 +89,7 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
     key = libtcod.Key()
     mouse = libtcod.Mouse()
 
+    game_state = GameStates.PLAYERS_TURN
     previous_game_state = game_state
 
     targeting_item = None
@@ -83,8 +137,6 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
         # move the player only on the players turn
         if move and game_state == GameStates.PLAYERS_TURN:
             dx, dy = move
-
-            # get destination of player's movement
             destination_x = player.x + dx
             destination_y = player.y + dy
 
@@ -151,6 +203,7 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
             elif game_state == GameStates.TARGETING:
                 player_turn_results.append({'targeting_cancelled': True})
             else:
+                save_game(player, entities, game_map, message_log, game_state)
                 return True
 
         if fullscreen:
@@ -168,11 +221,6 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
             if message:
                 message_log.add_message(message)
 
-            if targeting_cancelled:
-                game_state = previous_game_state
-
-                message_log.add_message(Message('Targeting cancelled'))
-
             if dead_entity:
                 if dead_entity == player:
                     message, game_state = kill_player(dead_entity)
@@ -183,6 +231,11 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
 
             if item_added:
                 entities.remove(item_added)
+
+                game_state = GameStates.ENEMY_TURN
+
+            if item_dropped:
+                entities.append(item_dropped)
 
                 game_state = GameStates.ENEMY_TURN
 
@@ -197,10 +250,10 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
 
                 message_log.add_message(targeting_item.item.targeting_message)
 
-            if item_dropped:
-                entities.append(item_dropped)
+            if targeting_cancelled:
+                game_state = previous_game_state
 
-                game_state = GameStates.ENEMY_TURN
+                message_log.add_message(Message('Targeting cancelled'))
 
         if game_state == GameStates.ENEMY_TURN:
             for entity in entities:

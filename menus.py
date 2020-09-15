@@ -50,3 +50,7 @@ def main_menu(con, background_image, screen_width, screen_height):
                              'TBy Ryan Ng')
 
     menu(con, '', ['Play a new game', 'Continue last game', 'Quit'], 24, screen_width, screen_height)
+
+
+def message_box(con, header, width, screen_width, screen_height):
+    menu(con, header, [], width, screen_width, screen_height)
