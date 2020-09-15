@@ -5,10 +5,10 @@ from entity import get_blocking_entities_at_location
 from fov_functions import initialize_fov, recompute_fov
 from game_messages import Message
 from game_states import GameStates
-from input_handlers import handle_keys, handle_mouse
+from input_handlers import handle_keys, handle_mouse, handle_main_menu
 from loader_functions.data_loaders import save_game, load_game
 from loader_functions.initialize_new_game import get_constants, get_game_variables
-from menus import main_menu
+from menus import main_menu, message_box
 from render_functions import render_all, clear_all
 
 
