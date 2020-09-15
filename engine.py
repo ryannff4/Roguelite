@@ -27,12 +27,12 @@ def main():
 
     player, entities, game_map, message_log, game_state = get_game_variables(constants)
 
-    # dictates if need to recompute the field of view
+
+def play_game(player, entities, game_map, message_log, game_state, con, panel, constants):
     fov_recompute = True
 
     fov_map = initialize_fov(game_map)
 
-    # variables to hold keyboard and mouse input
     key = libtcod.Key()
     mouse = libtcod.Mouse()
 
@@ -46,7 +46,8 @@ def main():
         libtcod.sys_check_for_event(libtcod.EVENT_KEY_PRESS | libtcod.EVENT_MOUSE, key, mouse)
 
         if fov_recompute:
-            recompute_fov(fov_map, player.x, player.y, constants['fov_radius'], constants['fov_light_walls'], constants['fov_algorithm'])
+            recompute_fov(fov_map, player.x, player.y, constants['fov_radius'], constants['fov_light_walls'],
+                          constants['fov_algorithm'])
 
         # draw the entities and blit the changes to the screen - only render the item inventory when the game state is in the inventory state
         render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, message_log,
@@ -111,7 +112,7 @@ def main():
                     pickup_results = player.inventory.add_item(entity)
                     player_turn_results.extend(pickup_results)
 
-                    break # makes it so the player only picks up one item at a time
+                    break  # makes it so the player only picks up one item at a time
             else:
                 message_log.add_message(Message('There is nothing here to pick up.', libtcod.yellow))
 
@@ -124,7 +125,8 @@ def main():
             game_state = GameStates.DROP_INVENTORY
 
         # take the index selected, use the item selected
-        if inventory_index is not None and previous_game_state != GameStates.PLAYER_DEAD and inventory_index < len(player.inventory.items):
+        if inventory_index is not None and previous_game_state != GameStates.PLAYER_DEAD and inventory_index < len(
+                player.inventory.items):
             item = player.inventory.items[inventory_index]
 
             if game_state == GameStates.SHOW_INVENTORY:
@@ -228,7 +230,6 @@ def main():
             # note that this is a for-else statement; without a break statement, this else will always happen
             else:
                 game_state = GameStates.PLAYERS_TURN
-
 
 # run the main function when we explicitly run the script
 if __name__ == '__main__':
