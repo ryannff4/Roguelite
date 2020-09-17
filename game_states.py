@@ -8,3 +8,4 @@ class GameStates(Enum):
     SHOW_INVENTORY = 4
     DROP_INVENTORY = 5
     TARGETING = 6
+    LEVEL_UP = 7
