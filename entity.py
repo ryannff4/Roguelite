@@ -1,5 +1,7 @@
 import math
 import tcod as libtcod
+
+from components.item import Item
 from render_functions import RenderOrder
 
 
@@ -9,7 +11,8 @@ class Entity:
     Holds the x and y coordinates, character [symbol], and color
     """
     def __init__(self, x, y, char, color, name, blocks=False, render_order=RenderOrder.CORPSE,
-                 fighter=None, ai=None, item=None, inventory=None, stairs=None, level=None):
+                 fighter=None, ai=None, item=None, inventory=None, stairs=None, level=None,
+                 equipment=None, equippable=None):
         self.x = x
         self.y = y
         self.char = char
@@ -23,6 +26,8 @@ class Entity:
         self.inventory = inventory
         self.stairs = stairs
         self.level = level
+        self.equipment = equipment
+        self.equippable = equippable
 
         # set the owner of the component to self because there will be a few instances where we'll want to access the entity from within the component
         if self.fighter:
@@ -42,6 +47,17 @@ class Entity:
 
         if self.level:
             self.level.owner = self
+
+        if self.equipment:
+            self.equipment.owner = self
+
+        if self.equippable:
+            self.equippable.owner = self
+
+            if not self.item:
+                item = Item()
+                self.item = item
+                self.item.owner = self
 
     def move(self, dx, dy):
         # move the entity by a given amount
